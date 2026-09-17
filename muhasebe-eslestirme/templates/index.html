@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Anasayfa - Muhasebe Eşleştirme{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Muhasebe Eşleştirme Sistemine Hoş Geldiniz</h1>
+    <p>Faturalarınızı ve ödemelerinizi kolayca eşleştirin.</p>
+    <div class="dashboard-links">
+        <a class="btn" href="{{ url_for('fatura.liste') }}">Faturaları Görüntüle</a>
+        <a class="btn" href="{{ url_for('odeme.liste') }}">Ödemeleri Görüntüle</a>
+        <a class="btn" href="{{ url_for('eslestirme.liste') }}">Eşleştirmeleri Görüntüle</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Muhasebe Eşleştirme{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-title">Muhasebe Eşleştirme</div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('anasayfa') }}" class="{{ 'active' if request.endpoint == 'anasayfa' }}">Anasayfa</a>
+                <a href="{{ url_for('fatura.liste') }}" class="{{ 'active' if request.endpoint == 'fatura.liste' }}">Faturalar</a>
+                <a href="{{ url_for('fatura.yukle_sayfa') }}" class="{{ 'active' if request.endpoint == 'fatura.yukle_sayfa' }}">Fatura Yükle</a>
+                <a href="{{ url_for('odeme.liste') }}" class="{{ 'active' if request.endpoint == 'odeme.liste' }}">Ödemeler</a>
+                <a href="{{ url_for('eslestirme.liste') }}" class="{{ 'active' if request.endpoint == 'eslestirme.liste' }}">Eşleştirmeler</a>
+                <a href="{{ url_for('eslestirme.manuel') }}" class="{{ 'active' if request.endpoint == 'eslestirme.manuel' }}">Manuel Eşleştir</a>
+                <a href="{{ url_for('musteri.liste') }}" class="{{ 'active' if request.endpoint == 'musteri.liste' }}">Müşteriler</a>
+            </nav>
+        </aside>
+        <div class="main-area">
+            <main class="content">
+                {% with mesajlar = get_flashed_messages(with_categories=true) %}
+                {% if mesajlar %}
+                <div class="flash-messages">
+                    {% for kategori, mesaj in mesajlar %}
+                    <div class="flash-item flash-{{ kategori }}">{{ mesaj }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+            <footer class="site-footer">
+                <span>Muhasebe Eşleştirme Uygulaması</span>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

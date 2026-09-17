@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Faturalar{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Faturalar</h1>
+        <a class="btn" href="{{ url_for('fatura.ekle') }}">Yeni Fatura</a>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Fatura No</th>
+                <th>Müşteri</th>
+                <th>Tarih</th>
+                <th>Genel Toplam</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fatura in faturalar %}
+            <tr>
+                <td>{{ fatura.fatura_no }}</td>
+                <td>{{ fatura.musteri.unvan if fatura.musteri else "-" }}</td>
+                <td>{{ fatura.fatura_tarihi }}</td>
+                <td>{{ "%.2f"|format(fatura.genel_toplam) }}</td>
+                <td>{{ fatura.durum }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Kayıtlı fatura bulunamadı.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

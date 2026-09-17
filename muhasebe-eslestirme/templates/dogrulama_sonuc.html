@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Doğrulama Sonucu{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Doğrulama Sonucu</h1>
+        <a class="btn btn-secondary" href="{{ url_for('fatura.yukle_sayfa') }}">Yeni Fatura Yükle</a>
+    </div>
+
+    {% if durum == "gecerli" %}
+    <div class="sonuc-basari-card">
+        <span class="badge badge-basari">Başarılı</span>
+        <p>Fatura verisi eksiksiz ve tutarlı bulundu.
+           {% if kaydedildi %}Fatura kaydedildi.{% endif %}</p>
+    </div>
+    {% elif kaydedildi %}
+    <div class="sonuc-basari-card">
+        <span class="badge badge-basari">Kaydedildi</span>
+        <p>Fatura, aşağıdaki uyarılarla birlikte kaydedildi.</p>
+    </div>
+    {% endif %}
+
+    {% if hatalar %}
+    <h2><span class="badge badge-hata">Hata</span>Zorunlu alanlar eksik</h2>
+    {% for hata in hatalar %}
+    <div class="sonuc-item hata">
+        <span class="alan-adi">{{ hata.alan }}:</span>{{ hata.mesaj }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if uyarilar %}
+    <h2><span class="badge badge-uyari">Uyarı</span>Kontrol edilmesi önerilen noktalar</h2>
+    {% for uyari in uyarilar %}
+    <div class="sonuc-item uyari">
+        <span class="alan-adi">{{ uyari.alan }}:</span>{{ uyari.mesaj }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if veri %}
+    <h2>Okunan Fatura Verisi</h2>
+    <table class="veri-ozet">
+        <tbody>
+            <tr><th>Fatura No</th><td>{{ veri.fatura_no or "-" }}</td></tr>
+            <tr><th>Fatura Tarihi</th><td>{{ veri.fatura_tarihi or "-" }}</td></tr>
+            <tr><th>Vade Tarihi</th><td>{{ veri.vade_tarihi or "-" }}</td></tr>
+            <tr><th>Vergi No</th><td>{{ veri.vergi_no or "-" }}</td></tr>
+            <tr><th>Ünvan</th><td>{{ veri.unvan or "-" }}</td></tr>
+            <tr><th>Net Tutar</th><td>{{ "%.2f"|format(veri.net_tutar) if veri.net_tutar is not none else "-" }}</td></tr>
+            <tr><th>KDV Oranı</th><td>{{ veri.kdv_orani if veri.kdv_orani is not none else "-" }}</td></tr>
+            <tr><th>KDV Tutarı</th><td>{{ "%.2f"|format(veri.kdv_tutari) if veri.kdv_tutari is not none else "-" }}</td></tr>
+            <tr><th>Genel Toplam</th><td>{{ "%.2f"|format(veri.genel_toplam) if veri.genel_toplam is not none else "-" }}</td></tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if not kaydedildi and eksik_alanlar %}
+    <p class="empty-note">Eksik alanlar tamamlanmadan fatura kaydedilmedi: {{ eksik_alanlar | join(", ") }}</p>
+    {% endif %}
+</section>
+{% endblock %}

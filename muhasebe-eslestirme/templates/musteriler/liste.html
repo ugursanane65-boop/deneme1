@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Müşteriler{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Müşteriler</h1>
+        <a href="{{ url_for('musteri.yeni') }}" class="btn">Yeni Müşteri</a>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center;">
+        <input  id="arama-input"
+                type="text"
+                placeholder="Ünvan veya vergi no ara..."
+                autocomplete="off"
+                style="padding: 8px 12px; border: 1px solid #aaa;
+                       border-radius: 4px; font-size: 14px;
+                       width: 320px; color: #333; background: #fff;"
+                oninput="aramaYap(this.value)">
+        <span   id="arama-durum"
+                style="font-size: 12px; color: #888; min-width: 80px;">
+        </span>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <a href="{{ url_for('musteri.liste', filtre='aktif') }}"
+           style="padding: 6px 16px; border-radius: 4px; font-size: 13px;
+                  text-decoration: none; border: 1px solid #aaa;
+                  background-color: {{ '#333' if filtre == 'aktif' else '#f4f4f4' }};
+                  color: {{ '#fff' if filtre == 'aktif' else '#333' }};">
+            Aktif
+        </a>
+        <a href="{{ url_for('musteri.liste', filtre='pasif') }}"
+           style="padding: 6px 16px; border-radius: 4px; font-size: 13px;
+                  text-decoration: none; border: 1px solid #aaa;
+                  background-color: {{ '#333' if filtre == 'pasif' else '#f4f4f4' }};
+                  color: {{ '#fff' if filtre == 'pasif' else '#333' }};">
+            Pasif
+        </a>
+        <a href="{{ url_for('musteri.liste', filtre='hepsi') }}"
+           style="padding: 6px 16px; border-radius: 4px; font-size: 13px;
+                  text-decoration: none; border: 1px solid #aaa;
+                  background-color: {{ '#333' if filtre == 'hepsi' else '#f4f4f4' }};
+                  color: {{ '#fff' if filtre == 'hepsi' else '#333' }};">
+            Hepsi
+        </a>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Ünvan</th>
+                <th>Vergi No</th>
+                <th>Tür</th>
+                <th>E-posta</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="musteri-tbody">
+            {% for musteri in musteriler %}
+            <tr data-id="{{ musteri.id }}" class="{{ 'satir-pasif' if not musteri.aktif }}">
+                <td>{{ musteri.unvan }}</td>
+                <td>{{ musteri.vergi_no }}</td>
+                <td><span class="tag">{{ musteri.tur }}</span></td>
+                <td>{{ musteri.email or "-" }}</td>
+                <td class="islem-hucresi">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a href="{{ url_for('musteri.duzenle', musteri_id=musteri.id) }}"
+                           style="display: inline-block;
+                                  width: 80px;
+                                  padding: 6px 0;
+                                  text-align: center;
+                                  background-color: #ddd;
+                                  color: #333;
+                                  border: 1px solid #aaa;
+                                  border-radius: 4px;
+                                  font-size: 13px;
+                                  text-decoration: none;">
+                            Düzenle
+                        </a>
+                        {% if musteri.aktif %}
+                        <form method="post" action="{{ url_for('musteri.sil', musteri_id=musteri.id) }}" style="margin: 0;">
+                            <button type="submit"
+                                    style="display: inline-block;
+                                           width: 80px;
+                                           margin: 4px 0;
+                                           padding: 8px 0;
+                                           text-align: center;
+                                           background-color: #ddd;
+                                           color: #333;
+                                           border: 1px solid #aaa;
+                                           border-radius: 4px;
+                                           font-size: 13px;
+                                           cursor: pointer;">
+                                Pasife al
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{{ url_for('musteri.aktif_yap', musteri_id=musteri.id) }}" style="margin: 0;">
+                            <button type="submit"
+                                    style="display: inline-block;
+                                           width: 80px;
+                                           padding: 6px 0;
+                                           margin: 4px 0;
+                                           text-align: center;
+                                           background-color: #555;
+                                           color: #fff;
+                                           border: 1px solid #333;
+                                           border-radius: 4px;
+                                           font-size: 13px;
+                                           cursor: pointer;">
+                                Aktif yap
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="empty-note">Kayıtlı müşteri bulunamadı.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<script>
+let aramaZamanlayici = null;
+const tbody       = document.getElementById('musteri-tbody');
+const durum       = document.getElementById('arama-durum');
+const filtreDeger = "{{ filtre }}";
+
+// Sayfa yuklenirken orijinal satirlari sakla
+const orijinalHTML = tbody.innerHTML;
+
+function aramaYap(deger) {
+    clearTimeout(aramaZamanlayici);
+    const q = deger.trim();
+
+    if (q.length === 0) {
+        tbody.innerHTML = orijinalHTML;
+        durum.textContent = '';
+        return;
+    }
+
+    if (q.length < 2) {
+        durum.textContent = 'En az 2 karakter gir';
+        return;
+    }
+
+    durum.textContent = 'Araniyor...';
+
+    aramaZamanlayici = setTimeout(() => {
+        fetch(`/musteriler/ara?q=${encodeURIComponent(q)}&filtre=${filtreDeger}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                          <td colspan="5"
+                              style="padding:16px; text-align:center;
+                                     color:#888; font-size:13px;">
+                              "${q}" icin sonuc bulunamadi.
+                          </td>
+                        </tr>`;
+                    durum.textContent = '0 sonuc';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(m => `
+                    <tr style="${m.aktif ? '' : 'opacity:0.5;'}">
+                        <td style="padding:10px 12px;">
+                            <a href="/musteriler/${m.id}/duzenle"
+                               style="color:#555; text-decoration:none;">
+                                ${vurgula(m.unvan, q)}
+                            </a>
+                        </td>
+                        <td style="padding:10px 12px;">
+                            ${vurgula(m.vergi_no, q)}
+                        </td>
+                        <td style="padding:10px 12px;">
+                            <span style="background:#eee; color:#555;
+                                         padding:2px 8px; border-radius:3px;
+                                         font-size:11px;">
+                                ${m.tur.toUpperCase()}
+                            </span>
+                        </td>
+                        <td style="padding:10px 12px; color:#555;">
+                            ${m.email}
+                        </td>
+                        <td style="padding:10px 12px;">
+                            <a href="/musteriler/${m.id}/duzenle"
+                               style="display:inline-block; width:80px;
+                                      padding:6px 0; text-align:center;
+                                      background:#ddd; color:#333;
+                                      border:1px solid #aaa; border-radius:4px;
+                                      font-size:13px; text-decoration:none;">
+                                Duzenle
+                            </a>
+                        </td>
+                    </tr>`).join('');
+
+                durum.textContent = `${data.length} sonuc`;
+            })
+            .catch(() => {
+                durum.textContent = 'Hata olustu';
+            });
+    }, 300);  // 300ms debounce - her tusta istek atmaz
+}
+
+// Aranan metni <strong> ile vurgula
+function vurgula(metin, aranan) {
+    if (!aranan) return metin;
+    const regex = new RegExp(`(${aranan.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return metin.replace(regex, '<strong style="color:#111;">$1</strong>');
+}
+</script>
+{% endblock %}

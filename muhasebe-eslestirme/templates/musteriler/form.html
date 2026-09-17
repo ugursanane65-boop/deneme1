@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Müşteri Düzenle" if musteri else "Yeni Müşteri" }}{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>{{ "Müşteri Düzenle" if musteri else "Yeni Müşteri" }}</h1>
+
+    {% set deger = form_data if form_data is not none else musteri %}
+
+    <form method="post">
+        <label for="unvan">Ünvan <span class="zorunlu">*</span></label>
+        <input type="text" id="unvan" name="unvan" value="{{ (deger.unvan if deger else '') or '' }}" required>
+
+        <label for="vergi_no">Vergi No <span class="zorunlu">*</span></label>
+        <input type="text" id="vergi_no" name="vergi_no" value="{{ (deger.vergi_no if deger else '') or '' }}" required>
+
+        <label for="vergi_dairesi">Vergi Dairesi</label>
+        <input type="text" id="vergi_dairesi" name="vergi_dairesi" value="{{ (deger.vergi_dairesi if deger else '') or '' }}">
+
+        <label for="tur">Tür</label>
+        {% set secili_tur = (deger.tur if deger else '') or 'musteri' %}
+        <select id="tur" name="tur">
+            <option value="musteri" {{ "selected" if secili_tur == "musteri" }}>Müşteri</option>
+            <option value="tedarikci" {{ "selected" if secili_tur == "tedarikci" }}>Tedarikçi</option>
+            <option value="her_ikisi" {{ "selected" if secili_tur == "her_ikisi" }}>Her İkisi</option>
+        </select>
+
+        <label for="email">E-posta</label>
+        <input type="email" id="email" name="email" value="{{ (deger.email if deger else '') or '' }}">
+
+        <label for="telefon">Telefon</label>
+        <input type="text" id="telefon" name="telefon" value="{{ (deger.telefon if deger else '') or '' }}">
+
+        <label for="iban">IBAN</label>
+        <input type="text" id="iban" name="iban" value="{{ (deger.iban if deger else '') or '' }}">
+
+        <label for="adres">Adres</label>
+        <textarea id="adres" name="adres">{{ (deger.adres if deger else '') or '' }}</textarea>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">Kaydet</button>
+            <a href="{{ url_for('musteri.liste') }}" class="btn btn-secondary">İptal</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,617 @@
+/* Muhasebe Eşleştirme — tüm stiller. Sadece gri tonlar: #111 #333 #555 #888 #aaa #ddd #f4f4f4 #fff */
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    background-color: #f4f4f4;
+    color: #111;
+}
+
+a {
+    color: #333;
+}
+
+/* ---------- Sidebar + layout ---------- */
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background-color: #111;
+    color: #ddd;
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 0 20px 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #333;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-nav a {
+    color: #aaa;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+.sidebar-nav a.active {
+    color: #fff;
+    background-color: #333;
+    border-left-color: #aaa;
+}
+
+.main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.content {
+    flex: 1;
+    padding: 32px;
+    max-width: 1100px;
+    width: 100%;
+}
+
+.site-footer {
+    background-color: #111;
+    color: #888;
+    text-align: center;
+    padding: 16px 0;
+    font-size: 0.85rem;
+}
+
+/* ---------- Genel bileşenler ---------- */
+
+.card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+h1 {
+    color: #111;
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+h2 {
+    color: #333;
+    font-size: 1.1rem;
+}
+
+p {
+    color: #555;
+}
+
+.dashboard-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn:hover {
+    background-color: #111;
+}
+
+.btn-secondary {
+    background-color: #aaa;
+    color: #111;
+}
+
+.btn-secondary:hover {
+    background-color: #888;
+    color: #fff;
+}
+
+.btn:disabled {
+    background-color: #ddd;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.data-table th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: 600;
+}
+
+.data-table td {
+    color: #333;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f4f4f4;
+}
+
+.empty-note {
+    color: #888;
+}
+
+.tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: #ddd;
+    color: #333;
+}
+
+.tag-dark {
+    background-color: #333;
+    color: #fff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+}
+
+form.form-wide {
+    max-width: none;
+}
+
+form label {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+form input,
+form select,
+form textarea {
+    padding: 8px 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #111;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    outline: none;
+    border-color: #555;
+}
+
+form button {
+    margin-top: 20px;
+    align-self: flex-start;
+}
+
+.error-list {
+    background-color: #ddd;
+    border: 1px solid #aaa;
+    color: #333;
+    padding: 12px 16px;
+    border-radius: 4px;
+    list-style-position: inside;
+}
+
+/* ---------- Fatura yükleme / sürükle-bırak ---------- */
+
+.dropzone {
+    border: 2px dashed #aaa;
+    border-radius: 6px;
+    padding: 48px 20px;
+    text-align: center;
+    color: #555;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    max-width: none;
+}
+
+.dropzone:hover {
+    border-color: #888;
+}
+
+.dropzone.dragover {
+    background-color: #ddd;
+    border-color: #555;
+    color: #333;
+}
+
+.dropzone-icon {
+    font-size: 2.2rem;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.dropzone-title {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.dropzone-hint {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 6px;
+}
+
+.dropzone input[type="file"] {
+    display: none;
+}
+
+.file-info {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* ---------- Doğrulama sonucu ---------- */
+
+.sonuc-basari-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-left: 4px solid #555;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.sonuc-item {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    background-color: #f4f4f4;
+}
+
+.sonuc-item.hata {
+    border-left: 4px solid #333;
+    color: #333;
+}
+
+.sonuc-item.uyari {
+    border-left: 4px solid #888;
+    color: #555;
+}
+
+.sonuc-item .alan-adi {
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.badge-hata {
+    background-color: #333;
+    color: #fff;
+}
+
+.badge-uyari {
+    background-color: #888;
+    color: #fff;
+}
+
+.badge-basari {
+    background-color: #ddd;
+    color: #111;
+}
+
+.veri-ozet {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.veri-ozet th,
+.veri-ozet td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+}
+
+.veri-ozet th {
+    color: #888;
+    font-weight: 600;
+    width: 40%;
+}
+
+.veri-ozet td {
+    color: #333;
+}
+
+/* ---------- Eşleştirme ekranı ---------- */
+
+.eslestirme-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.eslestirme-col {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 16px;
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.eslestirme-col h2 {
+    margin-top: 0;
+    font-size: 1rem;
+}
+
+.eslestirme-orta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding-top: 32px;
+    min-width: 160px;
+}
+
+.eslestirme-orta label {
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.eslestirme-orta input {
+    width: 130px;
+    padding: 8px 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.secim-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.88rem;
+    color: #333;
+}
+
+.secim-item:last-child {
+    border-bottom: none;
+}
+
+.secim-item input[type="radio"] {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.secim-item .secim-detay {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.secim-item .secim-tutar {
+    font-weight: 600;
+    color: #111;
+}
+
+.secim-item .secim-alt {
+    color: #888;
+    font-size: 0.78rem;
+}
+
+.eslestirme-sonuc {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    background-color: #f4f4f4;
+    color: #333;
+    display: none;
+}
+
+.eslestirme-sonuc.gorunur {
+    display: block;
+}
+
+/* ---------- Flash mesajları ---------- */
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.flash-item {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.flash-item.flash-hata {
+    background-color: #ddd;
+    border-left: 4px solid #333;
+    color: #333;
+}
+
+.flash-item.flash-basari {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+/* ---------- Müşteri modülü ---------- */
+
+.search-form {
+    display: flex;
+    flex-direction: row;
+    max-width: none;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.search-form input {
+    flex: 1;
+    max-width: 320px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.form-actions .btn,
+.form-actions .btn-secondary {
+    margin-top: 0;
+}
+
+.inline-form {
+    display: inline;
+    max-width: none;
+}
+
+.islem-hucresi {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.satir-pasif {
+    color: #888;
+}
+
+.satir-pasif td {
+    color: #888;
+}
+
+.zorunlu {
+    color: #555;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 800px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 16px 0;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 0 12px;
+    }
+
+    .sidebar-nav a {
+        border-left: none;
+        border-radius: 4px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .eslestirme-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .eslestirme-orta {
+        padding-top: 0;
+    }
+}

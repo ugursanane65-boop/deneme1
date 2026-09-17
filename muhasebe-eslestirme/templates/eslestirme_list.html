@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Eşleştirmeler{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Eşleştirmeler</h1>
+        <form method="post" action="{{ url_for('eslestirme.otomatik_calistir') }}">
+            <button type="submit" class="btn">Otomatik Eşleştir</button>
+        </form>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Fatura No</th>
+                <th>Ödeme ID</th>
+                <th>Eşleşen Tutar</th>
+                <th>Kalan Bakiye</th>
+                <th>Tarih</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eslestirmeler %}
+            <tr>
+                <td>{{ e.fatura.fatura_no if e.fatura else "-" }}</td>
+                <td>{{ e.odeme_id }}</td>
+                <td>{{ "%.2f"|format(e.eslestirilen_tutar) }}</td>
+                <td>{{ "%.2f"|format(e.kalan_bakiye) }}</td>
+                <td>{{ e.eslestirme_tarihi }}</td>
+                <td>{{ e.durum }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">Henüz eşleştirme yapılmadı.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Manuel Eşleştir{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Manuel Eşleştir</h1>
+        <a class="btn btn-secondary" href="{{ url_for('eslestirme.liste') }}">Eşleştirme Listesi</a>
+    </div>
+    <p>Solda bekleyen bir fatura, sağda bir ödeme seçip ortadaki tutarı ayarlayarak eşleştirin.</p>
+
+    <div class="eslestirme-grid">
+        <div class="eslestirme-col">
+            <h2>Bekleyen Faturalar</h2>
+            {% for fatura in faturalar %}
+            <label class="secim-item">
+                <input type="radio" name="fatura_id" value="{{ fatura.id }}" data-kalan="{{ fatura.kalan }}">
+                <span class="secim-detay">
+                    <span class="secim-tutar">{{ fatura.fatura_no }} — {{ "%.2f"|format(fatura.kalan) }}</span>
+                    <span class="secim-alt">{{ fatura.musteri.unvan if fatura.musteri else "-" }} · {{ fatura.fatura_tarihi }} · {{ fatura.durum }}</span>
+                </span>
+            </label>
+            {% else %}
+            <p class="empty-note">Bekleyen fatura yok.</p>
+            {% endfor %}
+        </div>
+
+        <div class="eslestirme-orta">
+            <label for="tutar">Eşleşecek Tutar</label>
+            <input type="number" id="tutar" step="0.01" min="0.01">
+            <button type="button" class="btn" id="eslestir-btn">Eşleştir</button>
+            <div class="eslestirme-sonuc" id="eslestirme-sonuc"></div>
+        </div>
+
+        <div class="eslestirme-col">
+            <h2>Ödemeler</h2>
+            {% for odeme in odemeler %}
+            <label class="secim-item">
+                <input type="radio" name="odeme_id" value="{{ odeme.id }}" data-tutar="{{ odeme.tutar }}">
+                <span class="secim-detay">
+                    <span class="secim-tutar">{{ "%.2f"|format(odeme.tutar) }}</span>
+                    <span class="secim-alt">{{ odeme.musteri.unvan if odeme.musteri else "-" }} · {{ odeme.odeme_tarihi }} · {{ odeme.yontem or "-" }}</span>
+                </span>
+            </label>
+            {% else %}
+            <p class="empty-note">Eşleşmemiş ödeme yok.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        var tutarInput = document.getElementById("tutar");
+        var sonucDiv = document.getElementById("eslestirme-sonuc");
+        var btn = document.getElementById("eslestir-btn");
+
+        function secili(name) {
+            var el = document.querySelector('input[name="' + name + '"]:checked');
+            return el ? el.value : null;
+        }
+
+        document.querySelectorAll('input[name="odeme_id"]').forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                tutarInput.value = radio.dataset.tutar;
+            });
+        });
+
+        btn.addEventListener("click", function () {
+            var faturaId = secili("fatura_id");
+            var odemeId = secili("odeme_id");
+            var tutar = tutarInput.value;
+
+            sonucDiv.classList.remove("gorunur");
+
+            if (!faturaId || !odemeId || !tutar) {
+                sonucDiv.textContent = "Bir fatura, bir ödeme seçip tutar girmelisiniz.";
+                sonucDiv.classList.add("gorunur");
+                return;
+            }
+
+            fetch("{{ url_for('eslestirme.eslestir_route') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fatura_id: faturaId, odeme_id: odemeId, tutar: tutar }),
+            })
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        return { ok: res.ok, data: data };
+                    });
+                })
+                .then(function (result) {
+                    if (result.ok) {
+                        sonucDiv.textContent = "Eşleştirme kaydedildi. Kalan bakiye: " + result.data.kalan + " (fatura durumu: " + result.data.fatura_durum + ")";
+                        sonucDiv.classList.add("gorunur");
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 900);
+                    } else {
+                        sonucDiv.textContent = result.data.hata || "Eşleştirme yapılamadı.";
+                        sonucDiv.classList.add("gorunur");
+                    }
+                })
+                .catch(function () {
+                    sonucDiv.textContent = "Sunucuya ulaşılamadı.";
+                    sonucDiv.classList.add("gorunur");
+                });
+        });
+    })();
+</script>
+{% endblock %}

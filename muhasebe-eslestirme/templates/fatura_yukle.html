@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Fatura Yükle{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Fatura Yükle</h1>
+        <a class="btn btn-secondary" href="{{ url_for('fatura.liste') }}">Fatura Listesi</a>
+    </div>
+    <p>PDF fatura dosyasını aşağıdaki alana sürükleyip bırakın veya seçmek için tıklayın.
+       Veriler otomatik olarak okunup doğrulanacaktır.</p>
+
+    <form class="form-wide" method="post" action="{{ url_for('fatura.yukle_sayfa') }}" enctype="multipart/form-data" id="yukle-form">
+        <label for="musteri_id">Müşteri</label>
+        <select name="musteri_id" id="musteri_id" required>
+            <option value="">Seçiniz...</option>
+            {% for musteri in musteriler %}
+            <option value="{{ musteri.id }}">{{ musteri.unvan }}</option>
+            {% endfor %}
+        </select>
+
+        <label id="dropzone-label" class="dropzone" for="dosya">
+            <div class="dropzone-icon">&#8595;</div>
+            <div class="dropzone-title">PDF dosyasını buraya bırakın</div>
+            <div class="dropzone-hint">veya bilgisayarınızdan seçmek için tıklayın (.pdf)</div>
+            <input type="file" name="dosya" id="dosya" accept="application/pdf,.pdf" required>
+        </label>
+        <div class="file-info" id="file-info" style="display: none;"></div>
+
+        <button type="submit" class="btn">Yükle ve Doğrula</button>
+    </form>
+</section>
+
+<script>
+    (function () {
+        var dropzone = document.getElementById("dropzone-label");
+        var input = document.getElementById("dosya");
+        var fileInfo = document.getElementById("file-info");
+
+        function dosyaAdiniGoster() {
+            if (input.files && input.files.length > 0) {
+                fileInfo.textContent = "Seçilen dosya: " + input.files[0].name;
+                fileInfo.style.display = "block";
+            } else {
+                fileInfo.style.display = "none";
+            }
+        }
+
+        input.addEventListener("change", dosyaAdiniGoster);
+
+        ["dragenter", "dragover"].forEach(function (evtAdi) {
+            dropzone.addEventListener(evtAdi, function (e) {
+                e.preventDefault();
+                dropzone.classList.add("dragover");
+            });
+        });
+
+        ["dragleave", "drop"].forEach(function (evtAdi) {
+            dropzone.addEventListener(evtAdi, function (e) {
+                e.preventDefault();
+                dropzone.classList.remove("dragover");
+            });
+        });
+
+        dropzone.addEventListener("drop", function (e) {
+            var dosyalar = e.dataTransfer.files;
+            if (dosyalar && dosyalar.length > 0) {
+                input.files = dosyalar;
+                dosyaAdiniGoster();
+            }
+        });
+    })();
+</script>
+{% endblock %}

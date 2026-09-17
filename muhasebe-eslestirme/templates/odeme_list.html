@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Ödemeler{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Ödemeler</h1>
+        <a class="btn" href="{{ url_for('odeme.ekle') }}">Yeni Ödeme</a>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Müşteri</th>
+                <th>Tarih</th>
+                <th>Tutar</th>
+                <th>Yöntem</th>
+                <th>Referans No</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for odeme in odemeler %}
+            <tr>
+                <td>{{ odeme.musteri.unvan if odeme.musteri else "-" }}</td>
+                <td>{{ odeme.odeme_tarihi }}</td>
+                <td>{{ "%.2f"|format(odeme.tutar) }}</td>
+                <td>{{ odeme.yontem or "-" }}</td>
+                <td>{{ odeme.referans_no or "-" }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Kayıtlı ödeme bulunamadı.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
